@@ -1,11 +1,6 @@
-# kafka-python-template
-Example kafka-based app, for deployment to CoreOS.
+# Cloud-ps-server
+Cloud-wide status monitoring of Docker containers.
 
-# Usage
-```
-docker build -t mfaulk/kafka-python-template .
-docker run 
-```
+## Requirements
 
-# CoreOS
-`kafka-app.service` provides an example Fleet service file. This assumes that the IP address of a Kafka broker has been written to etcd under `/service/kafka`
+## Usage
