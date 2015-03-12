@@ -1,0 +1,38 @@
+[Unit]
+Description=Cloud PS Server
+
+# Requirements
+Requires=etcd.service
+Requires=docker.service
+
+# Dependency ordering and binding
+After=etcd.service
+After=docker.service
+
+
+[Service]
+
+# Let processes take awhile to start up (for first run Docker containers)
+TimeoutStartSec=0
+
+# Get CoreOS environmental variables
+EnvironmentFile=/etc/environment
+
+## Directives with "=-" are allowed to fail without consequence.
+ExecStartPre=-/usr/bin/docker kill cloud-ps-server
+ExecStartPre=-/usr/bin/docker rm cloud-ps-server
+
+# Building from github requires github.com/your/project-name.git
+ExecStartPre=/usr/bin/docker build -t cloud-ps-server \ 
+	github.com/mfaulk/cloud-ps-server.git
+
+ExecStart=/usr/bin/sh -c '/usr/bin/docker run --name cloud-ps-server \
+	-e KAFKA_BROKER=$(/usr/bin/etcdctl ls /services/kafka | tail -n 1 | xargs etcdctl get) \
+	cloud-ps-server'
+
+ExecStop=/usr/bin/docker stop cloud-ps-server
+Restart=always
+
+[X-Fleet]
+X-Conflicts=cloud-ps-server.service
+# Specify that this should run on every machine?
